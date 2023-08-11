@@ -102,6 +102,45 @@ class Vizualizer():
             QtGui.QGuiApplication.instance().exec_()
 
 
+class Matplotlib_Visualiser():
+
+    def __init__(self, rotor_coeef, rotor_mass, rotor_count=4, start_velocity=0, start_acceleration=0) -> None:
+        
+        self.sistem_object_velocity_list = []
+        self.sistem_object_acceleration_list = []
+        self.sistem_angular_velocity = []
+
+        self.differential_of_time = 0.01
+
+        self.rotor_count = rotor_count
+        self.rotor_angular_velocity = 12.234
+        self.rotor_angular_velocity_sum = 0
+        self.rotor_coeef = rotor_coeef
+        self.copter_mass = rotor_mass
+        self.g_coeff = 9.81
+
+        self.sistem_curent_velocity = start_velocity
+        self.sistem_curent_acceleration = start_acceleration
+        self.sistem_curent_position = 0
+        
+
+    
+    def calculate_acceleration(self):
+
+        for _ in range(self.rotor_count):
+            self.rotor_angulat_velocity_sum += self.rotor_angular_velocity
+        
+        self.sistem_curent_acceleration = (self.rotor_angular_velocity_sum * self.rotor_coeef) / self.copter_mass - self.g_coeff
+    
+    def caculate_position_and_velocity(self):
+
+        self.sistem_curent_velocity += self.sistem_curent_acceleration * self.differential_of_time
+        self.sistem_curent_position += self.sistem_curent_position * self.differential_of_time
+    
+    def 
+
+
+
 obj = Vizualizer()
 obj.demo_animation()
 

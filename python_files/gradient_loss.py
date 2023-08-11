@@ -65,7 +65,7 @@ axis_3d.contourf(x_grid, y_grid, z_grid, zdir="z", offset=-1.35, cmap="coolwarm"
 axis_3d.contour(x_grid, y_grid, z_grid, zdir="z", offset=-1.35, cmap="magma")
 
 axis_3d.plot(x, y, z, linestyle="--", color="black", alpha=0.5)
-axis_3d.plot(x, y, 0, linestyle="--", color="red")
+#axis_3d.plot(x, y, 0, linestyle="--", color="red")
 
 
 plt.show()
