@@ -61,6 +61,8 @@ namespace Echo_vector
         public:
 
             //=====================================================================================================
+            // init object coordinate vector rotation
+            // simple using rotation eular matrix
             void object_rotation(int *vector, int vector_size)
             {
                 vector[0] = vector[0] * cos(rot_yaw) * cos(rot_roll) - vector[0] * cos(rot_pitch) * sin(rot_yaw) * sin(rot_roll) - vector[0] * cos(rot_roll) * sin(rot_yaw) - vector[0] * cos(rot_yaw) * cos(rot_pitch) * sin(rot_roll) + vector[0] * sin(rot_pitch) * sin(rot_roll);
@@ -69,6 +71,8 @@ namespace Echo_vector
 
             }
             //=====================================================================================================
+            // init object coordinate vector movement
+            // simple using movement matrix
             void object_movement(int *vector, int vector_size)
             {
                 vector[0] = vector[0] + move_x * Base_coeef;
@@ -77,6 +81,7 @@ namespace Echo_vector
 
             }
             //=====================================================================================================
+            // init movement flags for directly controlling of movement
             void movement_flags()
             {
                 switch (move_x_flag)

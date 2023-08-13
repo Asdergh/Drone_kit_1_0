@@ -1,149 +1,370 @@
-import pyqtgraph as pg
-from pyqtgraph import opengl as gl
-from pyqtgraph import QtCore, QtGui, QtWidgets
+import matplotlib.pyplot as plt
 import numpy as np
-import sys
+import pandas as pd
+import json as js
+import random as rd
+import yaml
+
+from xml.etree import ElementTree as Et
+from matplotlib.animation import FuncAnimation
 
 
+class SISTEM_FILE_DESCRIPTOR():
 
-class Vizualizer():
-
-    def __init__(self) -> None:
+    def __init__(self, description_file_type, serialize_mode=False, sistem_name="Test_sistem", simulation_epizode=100) -> None:
         
-        self.app = QtWidgets.QApplication(sys.argv)
-        self.window = gl.GLViewWidget()
-        self.window.setGeometry(0, 110, 1200, 1800)
-        self.window.show()
-        self.window.setWindowTitle("Scatter test")
-        self.window.setCameraPosition(distance=30, elevation=8)
+        #! variable sistem_file_description_type: тип файла с описанием системы [.json, .xml, .yaml]
 
-        self.x = np.linspace(-np.pi, np.pi, 100)
-        self.y = np.linspace(-np.pi, np.pi, 100)
-        self.x_grid, self.y_grid = np.meshgrid(self.x, self.y)
-        self.z = np.sin(np.sqrt(self.x_grid ** 2 + self.y_grid ** 2)) / np.sqrt(self.x_grid ** 2 + self.y_grid ** 2)
-        self.colors = np.array([np.random.randint(5, 100), np.random.randint(5, 100),
-                                 np.random.randint(5, 100)])
+        self.simulation_epizodes = simulation_epizode
+        self.sistem_name = sistem_name
+
+        self.sistem_file_description_type = description_file_type
+        self.sistem_file_description_serialize_mode = serialize_mode
+
+        self.sistem_first_link_pitch = 0.0
+        self.sistem_first_link_roll = 0.0
+        self.sistem_first_link_yaw =  0.0
+
+        self.sistem_second_link_pitch = 0.0
+        self.sistem_second_link_roll = 0.0
+        self.sistem_second_link_yaw = 0.0
+
+        self.sistem_thred_link_pitch = 0.0
+        self.sistem_thred_link_roll = 0.0
+        self.sistem_thred_link_yaw = 0.0
+
+        self.sistem_first_link_lenght = 1.0
+        self.sistem_second_link_lenght = 1.0
+        self.sistem_thred_link_lenght = 1.0
+
+        self.sistem_first_joint = np.array([np.random.normal(5, 1.12),
+                                            np.random.normal(5, 1.12),
+                                            np.random.normal(5, 1.12)])
         
-        self.object_position_x_list = [2.9898]
-        self.object_position_y_list = [2.9898]
-        self.object_position_z_list = [2.9898]
+        self.sistem_second_joint = np.array([np.random.normal(7, 1.12),
+                                             np.random.normal(7, 1.12),
+                                             np.random.normal(7, 1.12)])
+        
+        self.sistem_thred_joint = np.array([np.random.normal(9, 1.12),
+                                            np.random.normal(9, 1.12),
+                                            np.random.normal(9, 1.12)])
+        
+
+        self.sistem_information_dictionary = {
+            "sistem_propertys": 
+            {
+                "sistem_link_propertys": 
+                {
+                    "sistem_first_link_rotation_and_lenght":
+                    {   
+                        "iteration_0":
+                        {
+                            "sistem_first_link_pitch": f"Ox---{self.sistem_first_link_pitch}",
+                            "sistem_first_link_roll": f"Oy---{self.sistem_first_link_roll}",
+                            "sistem_first_link_yaw": f"Oz---{self.sistem_first_link_yaw}",
+                            "sistem_first_link_lenght": f"{self.sistem_first_link_lenght}"
+                        }
+                    },
+                    "sistem_second_link_rotation_and_lenght":
+                    {   
+                        "iteration_0":
+                        {
+                            "sistem_second_link_pitch": f"Ox---{self.sistem_second_link_pitch}",
+                            "sistem_second_link_roll": f"Oy---{self.sistem_second_link_roll}",
+                            "sistem_second_link_yaw": f"Oz---{self.sistem_second_link_yaw}",
+                            "sistem_second_link_lenght": f"{self.sistem_second_link_lenght}" 
+                        }                    
+                    },
+                    "sistem_thred_link_rotation_and_lenght":
+                    {   
+                        "iteration_0":
+                        {
+                            "sistem_thred_link_pitch": f"Ox---{self.sistem_thred_link_pitch}",
+                            "sistem_thred_link_roll": f"Oy---{self.sistem_thred_link_roll}",
+                            "sistem_thred_link_yaw": f"Oz---{self.sistem_thred_link_yaw}",
+                            "sistem_thred_link_lenght": f"{self.sistem_thred_link_lenght}"
+                        }
+                    }
+                },
+
+                "sistem_joint_propertys":
+                {
+                    "sistem_first_joint_position":
+                    {
+                        "iteration_0":
+                        {
+                            "x": f"{self.sistem_first_joint[0]}",
+                            "y": f"{self.sistem_first_joint[1]}",
+                            "z": f"{self.sistem_first_joint[2]}"
+                        }
+                    },
+                    "sistem_second_joint_position":
+                    {
+                        "iteration_0":
+                        {
+                            "x": f"{self.sistem_second_joint[0]}",
+                            "y": f"{self.sistem_second_joint[1]}",
+                            "z": f"{self.sistem_second_joint[2]}"
+                        }
+                    },
+                    "sistem_thred_joint_position":
+                    {
+                        "iteration_0":
+                        {
+                            "x": f"{self.sistem_thred_joint[0]}",
+                            "y": f"{self.sistem_thred_joint[1]}",
+                            "z": f"{self.sistem_thred_joint[2]}"
+                        }
+                    }
+                }
+            }
+        }
+        
 
 
-        self.sigma = 0.7891
-        self.zeta = 0.123
-        self.beta = 12.567
 
-
-        self.item_index = 0
-        self.iter = 0
-
-    def first_object_creation(self):
-
-        self.surface = gl.GLSurfacePlotItem(self.x, self.y, self.z, colors=self.colors)
-        self.grid = gl.GLGridItem()
-
-        self.general_cores = np.array([np.asarray(self.object_position_x_list), np.asarray(self.object_position_y_list),
-                                       np.asarray(self.object_position_z_list)])
-
-
-        self.curve = gl.GLLinePlotItem(pos=self.general_cores, color=np.array([100, 100, 256]))
-        self.grid.scale(2, 2, 2)
-        self.window.addItem(self.surface)
-        self.window.addItem(self.grid)
     
-    def changing_object_propertys(self):
+    def save_data_in_file(self):
 
-        self.x = np.linspace(-np.pi, np.pi, 100)
-        self.y = np.linspace(-np.pi, np.pi, 100)
-        self.x_grid, self.y_grid = np.meshgrid(self.x, self.y)
-        self.z = np.sin(np.sqrt(self.x_grid ** 2 + self.iter + self.y_grid ** 2 * 2 + self.iter)) / np.sqrt(self.x_grid ** 2 + self.iter + self.y_grid ** 2 + self.iter)
-
-        self.x_linear = self.object_position_x_list[self.item_index] - self.object_position_y_list[self.item_index]
-        self.y_linear = self.object_position_x_list[self.item_index] * (self.zeta - self.object_position_z_list[self.item_index])
-        self.z_linear = self.object_position_x_list[self.item_index] * self.object_position_y_list[self.item_index] - self.beta * self.object_position_z_list[self.item_index]
-
-        self.object_position_x_list.append(self.x_linear)
-        self.object_position_y_list.append(self.y_linear)
-        self.object_position_z_list.append(self.z_linear)
-
-        self.array_form_x_linear = np.asarray(self.object_position_x_list)
-        self.array_form_y_linear = np.asarray(self.object_position_y_list)
-        self.array_form_z_linear = np.asarray(self.object_position_z_list)
-
-        self.curent_general_cores = np.array([np.asarray(self.array_form_x_linear), np.asarray(self.array_form_y_linear), 
-                                              np.asarray(self.array_form_z_linear)]).T
-        print(self.curent_general_cores)
-        self.colos = np.array([np.random.normal(100, 256), np.random.normal(100, 256),
-                                 np.random.normal(100, 256)])
-        self.curve_colors = np.array([100, 100, 256])
+        print(self.sistem_information_dictionary)
+        if self.sistem_file_description_type == ".json":
+            
+            if not(self.sistem_file_description_serialize_mode):
+                with open(f"{self.sistem_name}.json", "w") as json_file:
+                    js.dump(self.sistem_information_dictionary, json_file)
+            else:
+                pass
         
-        self.surface.setData(self.x, self.y, self.z, colors=self.colors)
-        self.curve.setData(pos=self.curent_general_cores, color=self.curve_colors)
+        elif self.sistem_file_description_type == ".xml":
+
+            if not(self.sistem_file_description_serialize_mode):
+                
+                self.sistem_root = Et.Element("sitem_propertys")
+                self.sistem_xml_link_prop = Et.SubElement(self.sistem_root, "sistem_link_propertys")
+                self.sistem_xml_joint_prop = Et.SubElement(self.sistem_root, "sistem_joint_propertys")
+
+                self.sistem_xml_first_link_prop = Et.SubElement(self.sistem_xml_link_prop, "sistem_firt_link_propertys")
+                self.sistem_xml_second_link_prop = Et.SubElement(self.sistem_xml_link_prop, "sistem_second_link_propertys")
+                self.sistem_xml_thred_link_prop = Et.SubElement(self.sistem_xml_link_prop, "sistem_thred_link_porpertys")
+
+                self.sistem_xml_first_joint_prop = Et.SubElement(self.sistem_xml_joint_prop, "sistem_first_joint_propertys")
+                self.sistem_xml_second_joint_prop = Et.SubElement(self.sistem_xml_joint_prop, "sistem_second_joint_propertys")
+                self.sistem_xml_thred_joint_prop = Et.SubElement(self.sistem_xml_joint_prop, "sistem_thred_joint_propertys")
+
+                for sistem_epizode in range(self.simulation_iterator):
+
+                    self.first_link_xml = self.sistem_information_dictionary["sistem_propertys"]["sistem_link_propertys"]["sistem_first_link_rotation_and_lenght"][f"iteration_{sistem_epizode}"]
+                    self.second_link_xml = self.sistem_information_dictionary["sistem_propertys"]["sistem_link_propertys"]["sistem_second_link_rotation_and_lenght"][f"iteration_{sistem_epizode}"]
+                    self.thred_link_xml = self.sistem_information_dictionary["sistem_propertys"]["sistem_link_propertys"]["sistem_thred_link_rotation_and_lenght"][f"iteration_{sistem_epizode}"]
+
+                    self.first_joint_xml = self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_first_joint_position"][f"iteration_{sistem_epizode}"]
+                    self.second_joint_xml = self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_second_joint_position"][f"iteration_{sistem_epizode}"]
+                    self.thred_joint_xml = self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_first_joint_position"][f"iteration_{sistem_epizode}"]
+                    
+                    self.epizode_link_first = Et.SubElement(self.sistem_xml_first_link_prop, f"epizode_{sistem_epizode}")
+                    self.epizode_link_second = Et.SubElement(self.sistem_xml_second_link_prop, f"epizode_{sistem_epizode}")
+                    self.epizode_link_thred = Et.SubElement(self.sistem_xml_thred_link_prop, f"peizode_{sistem_epizode}")
+
+                    self.epizode_joint_first = Et.SubElement(self.sistem_xml_first_joint_prop, "epizode_{sistem_epizode}")
+                    self.epizode_joint_second = Et.SubElement(self.sistem_xml_second_joint_prop, "epizode_{sistem_epizode}")
+                    self.epizode_joint_thred = Et.SubElement(self.sistem_xml_thred_joint_prop, "epozodes_{sistem_epizode}")
+
+                    self.epizode_link_first.text = f"\t|\tlink_pitch: {self.first_link_xml['sistem_first_link_pitch']}\t|\tlink_roll: {self.first_link_xml['sistem_first_link_roll']}\t|\tlink_yaw: {self.first_link_xml['sistem_first_link_yaw']}\t|\tlink_lenght: {self.first_link_xml['sistem_first_link_lenght']}"
+                    self.epizode_link_second.text = f"\t|\tlink_pitch: {self.second_link_xml['sistem_second_link_pitch']}\t|\tsistem_roll: {self.second_link_xml['sistem_second_link_roll']}\t|\tsistem_yaw: {self.second_link_xml['sistem_second_link_yaw']}\t|\tlink_lenght: {self.second_link_xml['sistem_second_link_lenght']}"
+                    self.epizode_link_thred.text = f"\t|\tlink_pitch: {self.thred_link_xml['sistem_thred_link_pitch']}\t|\tlink_roll: {self.thred_link_xml['sistem_thred_link_roll']}\t|\tlink_yaw: {self.thred_link_xml['sistem_thred_link_yaw']}\t|\tlink_lenght: {self.thred_link_xml['sistem_thred_link_lenght']}"
+
+                    self.epizode_joint_first.text = f"\t|\tjoint x: {self.first_joint_xml['x']}\t|\tjoint y: {self.first_joint_xml['y']}\t|\tjoint z: {self.first_joint_xml['z']}"
+                    self.epizode_joint_second.text = f"\t|\tjoint x: {self.second_joint_xml['x']}\t|\tjoint y: {self.second_joint_xml['y']}\t|\tjsoint z: {self.second_joint_xml['z']}"
+                    self.epizode_joint_thred.text = f"\t|\tjoint x: {self.thred_joint_xml['x']}\t|\tjoint y: {self.thred_joint_xml['y']}\t|\tjoint z: {self.thred_joint_xml['z']}"
+            
+                self.sistem_result_xml_file_tree = Et.ElementTree(self.sistem_root)
+                self.sistem_result_xml_file_tree.write(f"{self.sistem_name}.xml")
+
+            else:
+                pass
         
-        self.iter = self.iter + 0.989898989 * np.random.normal(0.1, 0.1)
-        print(f"[color cores x: {self.colors[0]}, colors core y: {self.colors[1]}, color cores z: {self.colors[2]}] ========= general list of color cores: {self.colors}")
-        self.item_index += 1
+        elif self.sistem_file_description_type == ".yaml":
+
+            if not(self.sistem_file_description_serialize_mode):
+
+                with open(f"{self.sistem_name}.yaml", "w") as yaml_file:
+                    yaml.dump(self.sistem_information_dictionary, yaml_file)
+
+            else:
+                pass
 
 
-    
-    def demo_animation(self):
 
-        self.time = QtCore.QTimer()
-        self.time.timeout.connect(self.changing_object_propertys)
-        self.time.start(100)
-        self.start()
-        self.changing_object_propertys()
+class SISTEM_SIMULATION_MODULE(SISTEM_FILE_DESCRIPTOR):
 
-
-    def start(self):
-
-        self.first_object_creation()
-        if (sys.flags.interactive != 1) or not hasattr(QtCore, "PYQT_VERSION"):
-            QtGui.QGuiApplication.instance().exec_()
-
-
-class Matplotlib_Visualiser():
-
-    def __init__(self, rotor_coeef, rotor_mass, rotor_count=4, start_velocity=0, start_acceleration=0) -> None:
+    def __init__(self, description_file_type, serialize_mode=False, sistem_name="Test_sistem", simulation_epizode=100) -> None:
         
-        self.sistem_object_velocity_list = []
-        self.sistem_object_acceleration_list = []
-        self.sistem_angular_velocity = []
-
-        self.differential_of_time = 0.01
-
-        self.rotor_count = rotor_count
-        self.rotor_angular_velocity = 12.234
-        self.rotor_angular_velocity_sum = 0
-        self.rotor_coeef = rotor_coeef
-        self.copter_mass = rotor_mass
-        self.g_coeff = 9.81
-
-        self.sistem_curent_velocity = start_velocity
-        self.sistem_curent_acceleration = start_acceleration
-        self.sistem_curent_position = 0
+        super().__init__(description_file_type, serialize_mode, sistem_name, simulation_epizode)
         
+        self.sistem_first_link_freedom_degree = [rd.choice([0.0, 1.0]), rd.choice([0.0, 1.0]), rd.choice([0.0, 1.0])]
+        self.sistem_second_link_freedom_degree = [rd.choice([0.0, 1.0]), rd.choice([0.0, 1.0]), rd.choice([0.0, 1.0])]
+        self.sistem_thred_link_freedom_degree = [rd.choice([0.0, 1.0]), rd.choice([0.0, 1.0]), rd.choice([0.0, 1.0])]
 
-    
-    def calculate_acceleration(self):
+        self.figure = plt.figure()
+        self.view_3d = self.figure.add_subplot(projection="3d")
 
-        for _ in range(self.rotor_count):
-            self.rotor_angulat_velocity_sum += self.rotor_angular_velocity
+        self.simulation_iterator = 1
+
+    def sistem_link_rotation(self):
         
-        self.sistem_curent_acceleration = (self.rotor_angular_velocity_sum * self.rotor_coeef) / self.copter_mass - self.g_coeff
-    
-    def caculate_position_and_velocity(self):
+        self.sistem_first_joint.dot(np.array([
+            [1, 0, 0],
+            [0, np.cos(self.sistem_first_link_pitch), np.sin(self.sistem_first_link_pitch)],
+            [0, -np.sin(self.sistem_first_link_pitch), np.cos(self.sistem_first_link_pitch)]
+        ]))
+        self.sistem_first_joint.dot(np.array([
+            [np.cos(self.sistem_first_link_roll), 0, np.sin(self.sistem_first_link_roll)],
+            [0, 1, 0],
+            [-np.sin(self.sistem_first_link_roll), 0, np.cos(self.sistem_first_link_roll)]
+        ]))
+        self.sistem_first_joint.dot(np.array([
+            [np.cos(self.sistem_first_link_yaw), np.sin(self.sistem_first_link_yaw), 0],
+            [-np.sin(self.sistem_first_link_yaw), np.cos(self.sistem_first_link_yaw), 0],
+            [0, 0, 1]
+        ]))
+        self.sistem_second_joint.dot(np.array([
+            [1, 0, 0],
+            [0, np.cos(self.sistem_second_link_pitch), np.sin(self.sistem_second_link_pitch)],
+            [0, -np.sin(self.sistem_second_link_pitch), np.cos(self.sistem_second_link_pitch)]
+        ]))
+        self.sistem_second_joint.dot(np.array([
+            [np.cos(self.sistem_second_link_roll), 0, np.sin(self.sistem_second_link_roll)],
+            [0, 1, 0],
+            [-np.sin(self.sistem_second_link_roll), 0, np.cos(self.sistem_second_link_roll)]
+        ]))
+        self.sistem_second_joint.dot(np.array([
+            [np.cos(self.sistem_second_link_yaw), np.sin(self.sistem_second_link_yaw), 0],
+            [-np.sin(self.sistem_second_link_yaw), np.cos(self.sistem_second_link_yaw), 0],
+            [0, 0, 1]
+        ]))
 
-        self.sistem_curent_velocity += self.sistem_curent_acceleration * self.differential_of_time
-        self.sistem_curent_position += self.sistem_curent_position * self.differential_of_time
-    
-    def 
+        self.sistem_thred_joint.dot(np.array([
+            [1, 0, 0],
+            [0, np.cos(self.sistem_thred_link_pitch), np.sin(self.sistem_thred_link_pitch)],
+            [0, -np.sin(self.sistem_thred_link_pitch), np.cos(self.sistem_thred_link_pitch)]
+        ]))
+        self.sistem_thred_joint.dot(np.array([
+            [np.cos(self.sistem_thred_link_roll), 0, np.sin(self.sistem_thred_link_roll)],
+            [0, 1, 0],
+            [-np.sin(self.sistem_thred_link_roll), 0, np.cos(self.sistem_thred_link_roll)]
+        ]))
+        self.sistem_thred_joint.dot(np.array([
+            [np.cos(self.sistem_thred_link_yaw), np.sin(self.sistem_thred_link_yaw), 0],
+            [-np.sin(self.sistem_thred_link_yaw), np.cos(self.sistem_thred_link_yaw), 0],
+            [0, 0, 1]
+        ]))
+
+    def run_simulation(self):
+
+        def animation(simulation_time):
+            self.view_3d.clear()
+            self.view_3d.quiver(0, 0, 0, self.sistem_first_joint[0], self.sistem_first_joint[1], self.sistem_first_joint[2], color="gray")
+            self.view_3d.quiver(0, 0, 0, 3, 0, 0, color="blue")
+            self.view_3d.quiver(0, 0, 0, 0, 3, 0, color="red")
+            self.view_3d.quiver(0, 0, 0, 0, 0, 3, color="green")
+
+            self.view_3d.quiver(self.sistem_first_joint[0], self.sistem_first_joint[1], self.sistem_first_joint[2],
+                                self.sistem_second_joint[0], self.sistem_second_joint[1], self.sistem_second_joint[2], color="gray")
+            self.view_3d.quiver(self.sistem_first_joint[0], self.sistem_first_joint[1], self.sistem_first_joint[2], 3, 0, 0, color="blue")
+            self.view_3d.quiver(self.sistem_first_joint[0], self.sistem_first_joint[1], self.sistem_first_joint[2], 0, 3, 0, color="red")
+            self.view_3d.quiver(self.sistem_first_joint[0], self.sistem_first_joint[1], self.sistem_first_joint[2], 0, 0, 3, color="green")
+
+            self.view_3d.quiver(self.sistem_second_joint[0], self.sistem_second_joint[1], self.sistem_second_joint[2],
+                                self.sistem_thred_joint[0], self.sistem_thred_joint[1], self.sistem_thred_joint[2], color="gray")
+            self.view_3d.quiver(self.sistem_second_joint[0], self.sistem_second_joint[1], self.sistem_second_joint[2], 3, 0, 0, color="blue")
+            self.view_3d.quiver(self.sistem_second_joint[0], self.sistem_second_joint[1], self.sistem_second_joint[2], 0, 3, 0, color="red")
+            self.view_3d.quiver(self.sistem_second_joint[0], self.sistem_second_joint[1], self.sistem_second_joint[2], 0, 0, 3, color="green")
+
+            self.sistem_first_link_lenght = rd.randint(-1, 1)
+            self.sistem_second_link_lenght = rd.randint(-1, 1)
+            self.sistem_thred_link_lenght = rd.randint(-1, 1)
+
+            self.sistem_first_link_pitch = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_first_link_freedom_degree[0]
+            self.sistem_first_link_roll = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_first_link_freedom_degree[1]
+            self.sistem_first_link_yaw = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_first_link_freedom_degree[2]
+
+            self.sistem_second_link_pitch = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_second_link_freedom_degree[0]
+            self.sistem_second_link_roll = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_second_link_freedom_degree[1]
+            self.sistem_second_link_yaw = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_second_link_freedom_degree[2]
+
+            self.sistem_thred_link_pitch = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_thred_link_freedom_degree[0]
+            self.sistem_thred_link_roll = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_thred_link_freedom_degree[0]
+            self.sistem_thred_link_yaw = float(rd.randint(-5, 5)) * np.random.normal(1.25) * self.sistem_thred_link_freedom_degree[0]
+
+            self.sistem_link_rotation()
+            self.sistem_first_joint += self.sistem_first_link_lenght
+            self.sistem_second_joint += self.sistem_second_link_lenght
+            self.sistem_thred_joint += self.sistem_thred_link_lenght
+
+            self.sistem_information_dictionary["sistem_propertys"]["sistem_link_propertys"]["sistem_first_link_rotation_and_lenght"][f"iteration_{self.simulation_iterator}"] = {
+                "sistem_first_link_pitch": f"Ox---{self.sistem_first_link_pitch}",
+                "sistem_first_link_roll": f"Oy---{self.sistem_first_link_roll}",
+                "sistem_first_link_yaw": f"Oz---{self.sistem_first_link_roll}",
+                "sistem_first_link_lenght": f"{self.sistem_first_link_lenght}" 
+            }
+            self.sistem_information_dictionary["sistem_propertys"]["sistem_link_propertys"]["sistem_second_link_rotation_and_lenght"][f"iteration_{self.simulation_iterator}"] = {
+                "sistem_second_link_pitch": f"Ox---{self.sistem_second_link_pitch}",
+                "sistem_second_link_roll": f"Oy---{self.sistem_second_link_roll}",
+                "sistem_second_link_yaw": f"Oz---{self.sistem_second_link_roll}",
+                "sistem_second_link_lenght": f"{self.sistem_second_link_lenght}" 
+            }
+            self.sistem_information_dictionary["sistem_propertys"]["sistem_link_propertys"]["sistem_thred_link_rotation_and_lenght"][f"iteration_{self.simulation_iterator}"] = {
+                "sistem_thred_link_pitch": f"Ox---{self.sistem_thred_link_pitch}",
+                "sistem_thred_link_roll": f"Oy---{self.sistem_thred_link_roll}",
+                "sistem_thred_link_yaw": f"Oz---{self.sistem_thred_link_roll}",
+                "sistem_thred_link_lenght": f"{self.sistem_thred_link_lenght}" 
+            }
+            self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_first_joint_position"][f"iteration_{self.simulation_iterator}"] = {
+                "x": f"{self.sistem_first_joint[0]}",
+                "y": f"{self.sistem_first_joint[1]}",
+                "z": f"{self.sistem_first_joint[2]}"
+            }
+            print(self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_first_joint_position"][f"iteration_{self.simulation_iterator}"])
+            self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_second_joint_position"][f"iteration_{self.simulation_iterator}"] = {
+                "x": f"{self.sistem_second_joint[0]}",
+                "y": f"{self.sistem_second_joint[1]}",
+                "z": f"{self.sistem_second_joint[2]}"
+            }
+            self.sistem_information_dictionary["sistem_propertys"]["sistem_joint_propertys"]["sistem_thred_joint_position"][f"iteration_{self.simulation_iterator}"] = {
+                "x": f"{self.sistem_thred_joint[0]}",
+                "y": f"{self.sistem_thred_joint[1]}",
+                "z": f"{self.sistem_thred_joint[2]}"
+            }
+            self.simulation_iterator += 1
+        simulation_demo = FuncAnimation(self.figure, animation, interval=100)
+        plt.show()
+
+if __name__ == "__main__":
+    sim = SISTEM_SIMULATION_MODULE(description_file_type=".xml")
+    sim.run_simulation()
+    sim.save_data_in_file()
 
 
 
-obj = Vizualizer()
-obj.demo_animation()
 
 
-        
-    
+
+
+
+            
+
+
+
+
+
+
+
+
+
+                    
+
+
+
+                    
+
+
