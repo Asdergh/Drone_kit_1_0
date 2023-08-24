@@ -10,7 +10,7 @@ figure = plt.figure()
 axis_3d = figure.add_subplot(projection="3d")
 
 def init_function(x, y):
-    return np.cos(np.sqrt(x ** 2 + y ** 2)) * np.sin(np.sqrt(x ** 2 + y ** 2))
+    return np.sin(np.sqrt(x ** 2 + y ** 2)) / np.sqrt(x ** 2 + y ** 2)
 
 def derivative_of_function_x(x, y):
     return (init_function(x + 0.0000001, y) - init_function(x, y)) / 0.0000001

@@ -63,7 +63,7 @@ class Dinemic_drone_tools():
     def calculate_vel_and_pos(self):
 
         self.velocity += self.acceleration * self.dt
-        self.position += self.position * self.dt
+        self.position += self.velocity * self.dt
 
     #инициализируем необхадимые рассчеты
     def general_calculations(self):
@@ -211,17 +211,17 @@ class Sistem_Sumulation(Contrall_sistem):
 
 
 k_p = 150
-k_i = 0
+k_i = 12.9898
 k_d = 30
 dt = 0.01
 T_end = 150
-mass = 0.006
+mass = 0.6
 B = 3.9865e-08
 motor_spid_limit = 10000
 
 sim = Sistem_Sumulation(K_i=k_i, K_d=k_d, K_p=k_p, sat_limit=motor_spid_limit, simulation_episodes=T_end, copter_mass=mass, B=B, position=0, 
                         velocity=0, acceleration=0, rotor_count=4, dt=dt)
-sim.set_disired_position(10)
+sim.set_disired_position(2)
 cores = sim.run_simulation()
 
 

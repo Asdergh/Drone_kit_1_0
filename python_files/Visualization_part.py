@@ -14,6 +14,53 @@ class SISTEM_FILE_DESCRIPTOR():
     def __init__(self, description_file_type, serialize_mode=False, sistem_name="Test_sistem", simulation_epizode=100) -> None:
         
         #! variable sistem_file_description_type: тип файла с описанием системы [.json, .xml, .yaml]
+        #! type sistem_file_description_type: string
+
+        #! variable sistem_name: название системы, далее будет использоваться для создания файлов
+        #! type sitem_name: string
+
+        #! variable sistem_file_descriptor_serialize_mode: мод сериализации файлов
+        #! type sistem_file_decriptor_serialize_mode: bool
+
+        #! variable sistem_first_link_pitch: величина поворота тангажа первой связи
+        #! type sistem_first_link_pitch: float
+
+        #! variable sistem_first_link_roll: величина поворота крена первой связи
+        #! type sistme_first_link_roll: float
+
+        #! variable sistem_first_link_yaw: величина поворота рысканья первой связи
+        #! type sistem_first_link_yaw: float
+
+        #! variable sistem_second_link_pitch: величина поворота тангажа второй связ
+        #! variable sistem_second_link_pitch: float
+
+        #! variable sistem_second_link_roll: величина поворота крена второй связи
+        #! variable sistem_second_link_roll: float
+        
+        #! variable sistem_second_link_yaw: величина поворота рысканья второй связи
+        #! type sistem_second_link_yaw: float
+        
+        #! variable sistem_thred_link_pitch: величина поворота тангажа третьей связи
+        #! type sistem_thred_link_pitch: float
+        
+        #! variable sistem_thred_link_roll: величина поворота крена третьей связи
+        #! type sistem_thred_link_roll: float
+        
+        #! variable sistem_thred_link_yaw: величина поворота рысканья третьей связи
+        #! type sistem_thred_link_yaw: float
+        
+        #! variable sistem_first_link_lenght: длинна первой связи
+        #! type sistem_first_link_lenght: float
+        
+        #! variable sistem_second_link_lenght: длинна второй связи
+        #! type sistem_second_link_lenght: float
+        
+        #! variable sistem_thred_link_lenght: длинна третьей связи
+        #! type sistem_thred_link_lenght: float
+
+        #! variable sistem_information_dictionary: словарь описывающий данные системы
+        #! type sistem_information_dictionary: dict
+
 
         self.simulation_epizodes = simulation_epizode
         self.sistem_name = sistem_name
@@ -242,7 +289,6 @@ class SISTEM_SIMULATION_MODULE(SISTEM_FILE_DESCRIPTOR):
             [-np.sin(self.sistem_second_link_yaw), np.cos(self.sistem_second_link_yaw), 0],
             [0, 0, 1]
         ]))
-
         self.sistem_thred_joint.dot(np.array([
             [1, 0, 0],
             [0, np.cos(self.sistem_thred_link_pitch), np.sin(self.sistem_thred_link_pitch)],
